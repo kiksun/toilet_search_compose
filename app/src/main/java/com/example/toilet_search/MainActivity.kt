@@ -3,6 +3,7 @@ package com.example.toilet_search
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,9 +23,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.toilet_search.ui.theme.Toilet_searchTheme
 import kotlinx.coroutines.launch
 
@@ -42,18 +47,27 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+    val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("トイレ探索アプリ")
+                    Text("ホーム画面", modifier = Modifier.clickable {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("home")
+                    })
+                    Divider()
+                    Text("トイレ探索アプリ", modifier = Modifier.clickable {
+                        scope.launch { drawerState.close() }
+                        navController.navigate("toilet")
+                    })
                     Divider()
                     Text("サイドバー項目2")
                     Divider()
@@ -79,14 +93,22 @@ fun MainScreen() {
                 )
             }
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                Text("メインコンテンツ", modifier = Modifier.padding(16.dp))
+            NavHost(navController, startDestination = "home", Modifier.padding(innerPadding)) {
+                composable("home") { LaunchScreen() }
+                composable("toilet") { ToiletSearchScreen() }
             }
         }
+    }
+}
+
+@Composable
+fun LaunchScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "ホーム画面")
     }
 }
 
@@ -97,3 +119,4 @@ fun DefaultPreview() {
         MainScreen()
     }
 }
+
